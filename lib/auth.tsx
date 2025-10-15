@@ -14,6 +14,7 @@ interface User {
 interface AuthContextType {
   user: User | null
   login: (identifier: string, password: string) => Promise<{ success: boolean; error?: string; message?: string }>
+  register: (username: string, email: string, password: string) => Promise<{ success: boolean; error?: string; message?: string }>
   logout: () => void
   isLoading: boolean
 }
@@ -53,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (result.success && result.data) {
         console.log('Login successful, setting user data')
         const userData: User = {
-          id: result.data.user.id,
+          id: result.data.user.id || result.data.user._id || '',
           email: result.data.user.email,
           name: result.data.user.username
         }
@@ -92,6 +93,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const register = async (username: string, email: string, password: string): Promise<{ success: boolean; error?: string; message?: string }> => {
+    console.log('Auth register function called with:', { username, email, password: '***' })
+    setIsLoading(true)
+    
+    try {
+      console.log('Calling authApi.register...')
+      const result = await authApi.register({ username, email, password })
+      console.log('Register API result received:', result)
+      
+      if (result.success) {
+        console.log('Registration successful')
+        setIsLoading(false)
+        return { success: true, message: result.message || 'Registration successful' }
+      } else {
+        console.log('Registration failed, no success')
+        setIsLoading(false)
+        return { success: false, error: result.message || 'Registration failed' }
+      }
+    } catch (error) {
+      console.error('Register catch block error:', error)
+      setIsLoading(false)
+      
+      // Extract error message from the error object
+      let errorMessage = 'An error occurred during registration'
+      
+      if (error && typeof error === 'object') {
+        if ('message' in error && typeof error.message === 'string') {
+          errorMessage = error.message
+        } else if ('details' in error && error.details && typeof error.details === 'object') {
+          if ('message' in error.details) {
+            errorMessage = error.details.message as string
+          } else if ('error' in error.details) {
+            errorMessage = error.details.error as string
+          }
+        }
+      } else if (typeof error === 'string') {
+        errorMessage = error
+      }
+      
+      return { success: false, error: errorMessage }
+    }
+  }
+
   const logout = () => {
     setUser(null)
     localStorage.removeItem('user')
@@ -101,6 +145,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value: AuthContextType = {
     user,
     login,
+    register,
     logout,
     isLoading
   }

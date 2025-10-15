@@ -158,8 +158,11 @@ export default function LoginPage() {
             </div>
             <div className="text-xs text-gray-500 text-center">
               Don't have an account?{' '}
-              <button className="font-medium text-blue-600 hover:text-blue-500">
-                Contact administrator
+              <button 
+                className="font-medium text-blue-600 hover:text-blue-500"
+                onClick={() => router.push('/register')}
+              >
+                Create account
               </button>
             </div>
           </CardFooter>

@@ -5,13 +5,24 @@ export interface LoginCredentials {
   password: string;
 }
 
+export interface RegisterCredentials {
+  username: string;
+  email: string;
+  password: string;
+  avatar?: string;
+}
+
 export interface BackendUser {
-  id: string;
+  id?: string;
+  _id?: string;
   username: string;
   email: string;
   avatar?: string;
   user_type?: number;
   joined?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: number;
 }
 
 export interface LoginResponse {
@@ -19,6 +30,15 @@ export interface LoginResponse {
   message?: string;
   data?: {
     token: string;
+    user: BackendUser;
+  };
+}
+
+export interface RegisterResponse {
+  success: boolean;
+  message?: string;
+  data?: {
+    token?: string;
     user: BackendUser;
   };
 }
@@ -34,6 +54,17 @@ export const authApi = {
       setTokenInStorage(res.data.token);
     }
 
+    return res;
+  },
+
+  register: async (credentials: RegisterCredentials): Promise<RegisterResponse> => {
+    const res = await api.post("/api/users", credentials, { 
+      requireAuth: false,
+      showErrorToast: false  // We'll handle errors manually in the register form
+    });
+
+    // Registration typically doesn't return a token immediately
+    // User might need to verify email or login separately
     return res;
   },
 
