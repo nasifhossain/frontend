@@ -238,3 +238,8 @@ export const api = {
 		apiRequest(endpoint, { ...options, method: "DELETE" }),
 };
 // Export helper functions (clearTokenCache and setWidgetAuthToken are already exported above)
+
+// Export API modules
+export * from './auth';
+export * from './posts';
+export * from './comments';

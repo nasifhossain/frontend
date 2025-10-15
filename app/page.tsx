@@ -10,6 +10,7 @@ import { useAuth } from '@/lib/auth'
 import { ProfileEditDialog } from '@/components/profile-edit-dialog'
 import { ChangePasswordDialog } from '@/components/change-password-dialog'
 import { UserDropdown } from '@/components/user-dropdown'
+import { PostsSection } from '@/components/post/posts-section'
 
 export default function HomePage() {
   const { user, logout } = useAuth()
@@ -41,7 +42,7 @@ export default function HomePage() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
               <Home className="h-6 w-6 text-blue-600" />
-              <h1 className="text-xl font-semibold text-gray-900">Home Page</h1>
+              <h1 className="text-xl font-semibold text-gray-900">Posts</h1>
             </div>
             
             <div className="flex items-center space-x-4">
@@ -54,7 +55,7 @@ export default function HomePage() {
                 className="flex items-center space-x-2"
               >
                 <LogOut className="h-4 w-4" />
-                <span>Logout</span>
+                <span className="hidden sm:inline">Logout</span>
               </Button>
             </div>
           </div>
@@ -63,106 +64,21 @@ export default function HomePage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-8">
+        <div className="space-y-6">
           {/* Welcome Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-3xl font-bold text-gray-900">
-                Welcome, {user.name}!
-              </CardTitle>
-              <CardDescription className="text-lg">
-                This is your home page dashboard
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div className="flex items-center">
-                  <Home className="h-5 w-5 text-blue-600 mr-2" />
-                  <p className="text-blue-800">
-                    You are successfully logged in to the application!
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-600">
-                  User Status
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-600">Active</div>
-                <p className="text-xs text-gray-500">Currently logged in</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-600">
-                  Email
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-lg font-semibold text-gray-900 truncate">
-                  {user.email}
-                </div>
-                <p className="text-xs text-gray-500">Your account email</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-600">
-                  Session
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-blue-600">Secure</div>
-                <p className="text-xs text-gray-500">Authentication verified</p>
-              </CardContent>
-            </Card>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Welcome back, {user.name}!
+              </h1>
+              <p className="text-gray-600">
+                Discover and share amazing content with the community
+              </p>
+            </div>
           </div>
 
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>
-                Common tasks and navigation
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <ProfileEditDialog>
-                  <Button variant="outline" className="h-20 flex flex-col">
-                    <User className="h-6 w-6 mb-2" />
-                    Profile
-                  </Button>
-                </ProfileEditDialog>
-                
-                <ChangePasswordDialog>
-                  <Button variant="outline" className="h-20 flex flex-col">
-                    <Lock className="h-6 w-6 mb-2" />
-                    Password
-                  </Button>
-                </ChangePasswordDialog>
-                
-                <Button variant="outline" className="h-20 flex flex-col">
-                  <Home className="h-6 w-6 mb-2" />
-                  Dashboard
-                </Button>
-                
-                <Button variant="outline" className="h-20 flex flex-col">
-                  <div className="h-6 w-6 mb-2 bg-gray-300 rounded" />
-                  Settings
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Posts Section */}
+          <PostsSection />
         </div>
       </main>
     </div>
