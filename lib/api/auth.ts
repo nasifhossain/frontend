@@ -12,6 +12,15 @@ export interface RegisterCredentials {
   avatar?: string;
 }
 
+export interface UpdateProfileCredentials {
+  username: string;
+  email: string;
+  password: string; // Current password (required)
+  newPassword?: string; // New password (optional)
+  avatar?: string;
+  user_type?: number;
+}
+
 export interface BackendUser {
   id?: string;
   _id?: string;
@@ -41,6 +50,18 @@ export interface RegisterResponse {
     token?: string;
     user: BackendUser;
   };
+}
+
+export interface ProfileResponse {
+  success: boolean;
+  message?: string;
+  data?: BackendUser;
+}
+
+export interface UpdateProfileResponse {
+  success: boolean;
+  message?: string;
+  data?: BackendUser;
 }
 
 export const authApi = {
@@ -79,13 +100,21 @@ export const authApi = {
     }
   },
 
-  getProfile: async (): Promise<BackendUser | null> => {
+  getProfile: async (): Promise<ProfileResponse> => {
     try {
-      const res = await api.get("/api/users/me");
-      return res?.data?.user ?? null;
+      const res = await api.get("/api/users/profile");
+      return res;
     } catch (e) {
-      return null;
+      throw e;
     }
+  },
+
+  updateProfile: async (userId: string, credentials: UpdateProfileCredentials): Promise<UpdateProfileResponse> => {
+    const res = await api.put(`/api/users/${userId}`, credentials, { 
+      showErrorToast: false  // We'll handle errors manually in the profile form
+    });
+
+    return res;
   },
 };
 

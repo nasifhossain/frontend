@@ -1,12 +1,15 @@
 "use client"
 
 import React from 'react'
-import { LogOut, User, Home } from 'lucide-react'
+import { LogOut, User, Home, Lock } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { useAuth } from '@/lib/auth'
+import { ProfileEditDialog } from '@/components/profile-edit-dialog'
+import { ChangePasswordDialog } from '@/components/change-password-dialog'
+import { UserDropdown } from '@/components/user-dropdown'
 
 export default function HomePage() {
   const { user, logout } = useAuth()
@@ -42,10 +45,7 @@ export default function HomePage() {
             </div>
             
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <User className="h-5 w-5 text-gray-600" />
-                <span className="text-sm text-gray-700">{user.name}</span>
-              </div>
+              <UserDropdown userName={user.name} />
               
               <Button
                 variant="outline"
@@ -137,10 +137,19 @@ export default function HomePage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Button variant="outline" className="h-20 flex flex-col">
-                  <User className="h-6 w-6 mb-2" />
-                  Profile
-                </Button>
+                <ProfileEditDialog>
+                  <Button variant="outline" className="h-20 flex flex-col">
+                    <User className="h-6 w-6 mb-2" />
+                    Profile
+                  </Button>
+                </ProfileEditDialog>
+                
+                <ChangePasswordDialog>
+                  <Button variant="outline" className="h-20 flex flex-col">
+                    <Lock className="h-6 w-6 mb-2" />
+                    Password
+                  </Button>
+                </ChangePasswordDialog>
                 
                 <Button variant="outline" className="h-20 flex flex-col">
                   <Home className="h-6 w-6 mb-2" />
@@ -150,11 +159,6 @@ export default function HomePage() {
                 <Button variant="outline" className="h-20 flex flex-col">
                   <div className="h-6 w-6 mb-2 bg-gray-300 rounded" />
                   Settings
-                </Button>
-                
-                <Button variant="outline" className="h-20 flex flex-col">
-                  <div className="h-6 w-6 mb-2 bg-gray-300 rounded" />
-                  Help
                 </Button>
               </div>
             </CardContent>
