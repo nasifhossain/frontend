@@ -9,6 +9,7 @@ import { Eye, EyeOff, Mail, Lock, User, Settings } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { AvatarUpload } from '@/components/ui/avatar-upload'
 import {
   Dialog,
   DialogContent,
@@ -44,6 +45,7 @@ export function ProfileEditDialog({ children, open: externalOpen, onOpenChange: 
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [currentUserType, setCurrentUserType] = useState<number>(0)
+  const [avatarUrl, setAvatarUrl] = useState<string>('')
 
   // Use external open state if provided, otherwise use internal state
   const open = externalOpen !== undefined ? externalOpen : internalOpen
@@ -77,6 +79,7 @@ export function ProfileEditDialog({ children, open: externalOpen, onOpenChange: 
       if (result.success && result.data) {
         const profileData = result.data
         setCurrentUserType(profileData.user_type || 0)
+        setAvatarUrl(profileData.avatar || 'No avatar')
         setValue('username', profileData.username)
         setValue('email', profileData.email)
         setValue('avatar', profileData.avatar || 'No avatar')
@@ -107,7 +110,7 @@ export function ProfileEditDialog({ children, open: externalOpen, onOpenChange: 
       const updateData = {
         username: data.username,
         email: data.email,
-        avatar: data.avatar || 'No avatar',
+        avatar: avatarUrl, // Use the current avatar URL from state
         password: data.currentPassword, // Backend expects 'password' for current password
         ...(isCurrentUserAdmin ? { user_type: data.user_type || 0 } : {})
       }
@@ -119,7 +122,8 @@ export function ProfileEditDialog({ children, open: externalOpen, onOpenChange: 
         const updatedUserData = {
           id: result.data.id || result.data._id || user.id,
           email: result.data.email,
-          name: result.data.username
+          name: result.data.username,
+          avatar: result.data.avatar
         }
         
         setUser(updatedUserData)
@@ -164,6 +168,11 @@ export function ProfileEditDialog({ children, open: externalOpen, onOpenChange: 
       })
     }
   }
+
+  const handleAvatarChange = (newAvatarUrl: string) => {
+    setAvatarUrl(newAvatarUrl);
+    setValue('avatar', newAvatarUrl);
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -253,18 +262,19 @@ export function ProfileEditDialog({ children, open: externalOpen, onOpenChange: 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="avatar" className="text-sm font-medium text-gray-700">
+              <Label className="text-sm font-medium text-gray-700">
                 Avatar
               </Label>
-              <Input
-                id="avatar"
-                type="text"
-                placeholder="Avatar URL (will integrate Cloudinary later)"
-                disabled
-                {...register('avatar')}
-                className="bg-gray-100 border-gray-300 text-gray-500"
-              />
-              <p className="text-xs text-gray-500">Avatar editing will be available after Cloudinary integration</p>
+              <div className="flex justify-center">
+                <AvatarUpload
+                  currentAvatar={avatarUrl}
+                  onAvatarChange={handleAvatarChange}
+                  disabled={isSubmitting}
+                  size="lg"
+                />
+              </div>
+              {/* Hidden input to maintain form validation */}
+              <input type="hidden" {...register('avatar')} />
             </div>
 
             <div className="space-y-2">

@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import { MessageCircle, Clock, User } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { PostImageGallery } from '@/components/ui/post-image-gallery';
 import { CommentsDialog } from './comments-dialog';
 import { Post } from '@/lib/api/posts';
 
@@ -60,7 +61,7 @@ export function PostCard({ post, viewMode = 'grid', className }: PostCardProps) 
 
   return (
     <Card 
-      className={`hover:shadow-lg transition-all duration-200 hover:scale-[1.02] h-full flex flex-col cursor-pointer ${className}`}
+      className={`hover:shadow-lg transition-all duration-300 hover:scale-[1.02] h-full flex flex-col cursor-pointer border border-gray-200 hover:border-gray-300 bg-white ${className}`}
       onClick={handlePostClick}
     >
       <CardHeader className="pb-3">
@@ -119,34 +120,35 @@ export function PostCard({ post, viewMode = 'grid', className }: PostCardProps) 
             {post.caption}
           </p>
           
-          {post.content && post.content.length > 0 && (
-            <div 
-              className="grid grid-cols-2 gap-2 mt-3"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {post.content.slice(0, 4).map((imageUrl, index) => (
-                <div
-                  key={index}
-                  className="relative aspect-square rounded-lg overflow-hidden bg-gray-100"
-                >
-                  <img
-                    src={imageUrl}
-                    alt={`Post image ${index + 1}`}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
-                    onError={(e) => {
-                      e.currentTarget.src = 'https://via.placeholder.com/200x200?text=Image+Not+Found';
-                    }}
-                  />
-                  {index === 3 && post.content.length > 4 && (
-                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                      <span className="text-white font-medium text-sm">
-                        +{post.content.length - 4} more
-                      </span>
-                    </div>
-                  )}
-                </div>
-              ))}
+          {/* Images Gallery - Only show if content exists and has images */}
+          {post.content && post.content.length > 0 ? (
+            <div onClick={(e) => e.stopPropagation()}>
+              <PostImageGallery 
+                images={post.content}
+                alt={`Images for ${post.title}`}
+                className="mt-3"
+                compact={true}
+              />
             </div>
+          ) : (
+            /* Add visual interest for text-only posts in grid view */
+            viewMode === 'grid' && (
+              <div className="mt-4 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
+                <div className="flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-12 h-12 mx-auto mb-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                      <MessageCircle className="w-6 h-6 text-white" />
+                    </div>
+                    <p className="text-sm text-gray-600 font-medium">
+                      Join the discussion
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {post.comment_count} {post.comment_count === 1 ? 'comment' : 'comments'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )
           )}
         </div>
         

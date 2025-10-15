@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Clock, User, MessageCircle, AlertCircle, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Clock, User, MessageCircle, AlertCircle, RefreshCw, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { PostImageGallery } from '@/components/ui/post-image-gallery';
 import { CommentCard } from '@/components/post/comment-card';
 import { CommentForm } from '@/components/post/comment-form';
 import { postsApi, Post } from '@/lib/api/posts';
@@ -213,7 +214,11 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
         </div>
 
         {/* Post Details */}
-        <Card className="mb-8">
+        <Card className={`mb-8 ${
+          (!post.content || post.content.length === 0) 
+            ? 'bg-gradient-to-br from-gray-50 to-white border-gray-200' 
+            : 'bg-white'
+        }`}>
           <CardHeader className="pb-4">
             <div className="flex items-start space-x-4">
               <div className="flex-shrink-0">
@@ -266,25 +271,13 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
               </p>
             </div>
             
-            {/* Images */}
+            {/* Images Gallery - Only show if content exists and has images */}
             {post.content && post.content.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {post.content.map((imageUrl, index) => (
-                  <div
-                    key={index}
-                    className="relative aspect-square rounded-lg overflow-hidden bg-gray-100"
-                  >
-                    <img
-                      src={imageUrl}
-                      alt={`Post image ${index + 1}`}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
-                      onError={(e) => {
-                        e.currentTarget.src = 'https://via.placeholder.com/400x400?text=Image+Not+Found';
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
+              <PostImageGallery 
+                images={post.content}
+                alt={`Images for ${post.title}`}
+                className="max-w-2xl"
+              />
             )}
 
             {/* Post Stats */}

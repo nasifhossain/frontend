@@ -46,7 +46,7 @@ export default function HomePage() {
             </div>
             
             <div className="flex items-center space-x-4">
-              <UserDropdown userName={user.name} />
+              <UserDropdown userName={user.name} userAvatar={user.avatar} />
               
               <Button
                 variant="outline"

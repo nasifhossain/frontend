@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { ImageUpload } from '@/components/ui/image-upload';
 import { postsApi } from '@/lib/api/posts';
 import { useToast } from '@/hooks/use-toast';
 
@@ -30,7 +31,7 @@ export function CreatePostDialog({ open: controlledOpen, onOpenChange, onPostCre
   const [formData, setFormData] = useState({
     title: '',
     caption: '',
-    content: [] // Dummy Cloudinary image
+    content: [] as string[] // Will contain Cloudinary image URLs
   });
   const open = controlledOpen ?? internalOpen;
   const setOpen = onOpenChange ?? setInternalOpen;
@@ -44,11 +45,18 @@ export function CreatePostDialog({ open: controlledOpen, onOpenChange, onPostCre
     }));
   };
 
+  const handleImagesChange = (images: string[]) => {
+    setFormData(prev => ({
+      ...prev,
+      content: images
+    }));
+  };
+
   const resetForm = () => {
     setFormData({
       title: '',
       caption: '',
-      content: [] // Reset to dummy image
+      content: [] // Reset to empty array
     });
   };
 
@@ -70,7 +78,7 @@ export function CreatePostDialog({ open: controlledOpen, onOpenChange, onPostCre
       await postsApi.createPost({
         title: formData.title.trim(),
         caption: formData.caption.trim(),
-        content: formData.content
+        content: formData.content // Array of Cloudinary URLs
       });
 
       toast({
@@ -149,12 +157,12 @@ export function CreatePostDialog({ open: controlledOpen, onOpenChange, onPostCre
 
           <div className="space-y-2">
             <Label>Images</Label>
-            <div className="text-sm text-gray-600 p-3 bg-gray-50 rounded-md">
-              Content will contain Cloudinary image links. Currently using dummy image:
-              <div className="mt-2 text-xs font-mono text-gray-500 break-all">
-                {formData.content[0]}
-              </div>
-            </div>
+            <ImageUpload
+              images={formData.content}
+              onImagesChange={handleImagesChange}
+              maxImages={5}
+              disabled={loading}
+            />
           </div>
 
           <DialogFooter className="gap-2">
