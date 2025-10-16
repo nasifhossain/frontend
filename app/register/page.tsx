@@ -18,6 +18,7 @@ import { useToast } from '@/hooks/use-toast'
 const registerSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters").max(20, "Username must be less than 20 characters"),
   email: z.string().email("Please enter a valid email address"),
+  name: z.string().min(1, "Name is required").max(50, "Name must be less than 50 characters"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   confirmPassword: z.string().min(6, "Please confirm your password"),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -53,7 +54,7 @@ export default function RegisterPage() {
     console.log('Register form submitted with data:', { ...data, password: '***', confirmPassword: '***' })
     
     try {
-      const result = await registerUser(data.username, data.email, data.password)
+      const result = await registerUser(data.username, data.email, data.name, data.password)
       console.log('Register result:', result)
       
       if (result.success) {
@@ -141,6 +142,26 @@ export default function RegisterPage() {
                 </div>
                 {errors.email && (
                   <p className="text-sm text-red-600">{errors.email.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-sm font-medium text-gray-700">
+                  Full Name
+                </Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="name"
+                    type="text"
+                    autoComplete="name"
+                    className="pl-10"
+                    placeholder="Enter your full name"
+                    {...register('name')}
+                  />
+                </div>
+                {errors.name && (
+                  <p className="text-sm text-red-600">{errors.name.message}</p>
                 )}
               </div>
 

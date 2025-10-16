@@ -81,7 +81,7 @@ export function PostCardListView({ post, className }: PostCardListViewProps) {
           <div className="flex-grow min-w-0">
             <div className="flex items-center space-x-2 mb-1">
               <h3 className="font-semibold text-gray-900 text-sm truncate">
-                {post.user_id.username}
+                {post.user_id.name || post.user_id.username}
               </h3>
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                 post.user_id.user_type === 1 

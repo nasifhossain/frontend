@@ -5,6 +5,7 @@ export interface PostUser {
   _id: string;
   username: string;
   email: string;
+  name?: string;
   avatar: string;
   user_type: number;
   joined: string;

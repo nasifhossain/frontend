@@ -102,7 +102,7 @@ export function PostCard({ post, viewMode = 'grid', className }: PostCardProps) 
                 className="font-semibold text-gray-900 truncate cursor-pointer hover:text-blue-600 transition-colors"
                 onClick={handleUserClick}
               >
-                {post.user_id.username}
+                {post.user_id.name || post.user_id.username}
               </h3>
               <span className={`px-2 py-1 text-xs rounded-full font-medium whitespace-nowrap ${
                 post.user_id.user_type === 1 

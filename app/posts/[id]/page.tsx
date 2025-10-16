@@ -249,7 +249,7 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
                     className="font-semibold text-gray-900 text-lg cursor-pointer hover:text-blue-600 transition-colors"
                     onClick={handleUserClick}
                   >
-                    {post.user_id.username}
+                    {post.user_id.name || post.user_id.username}
                   </h3>
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                     post.user_id.user_type === 1 

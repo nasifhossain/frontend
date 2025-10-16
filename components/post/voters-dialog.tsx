@@ -74,8 +74,9 @@ export function VotersDialog({ open, onOpenChange, commentId, type }: VotersDial
                     )}
                   </div>
                   <div>
-                    <div className="font-medium text-gray-900">{u.username}</div>
-                    <div className="text-xs text-gray-500">{u.email}</div>
+                    <div className="font-medium text-gray-900">{u.name || u.username}</div>
+                    <div className="text-xs text-gray-500">@{u.username}</div>
+                    {u.name && <div className="text-xs text-gray-400">{u.email}</div>}
                   </div>
                 </li>
               ))}

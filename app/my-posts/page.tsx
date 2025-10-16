@@ -13,6 +13,7 @@ interface UserData {
   id: string;
   username: string;
   email: string;
+  name?: string;
   avatar: string;
   user_type: number;
   joined: string;
@@ -167,7 +168,7 @@ export default function MyPostsPage() {
                 {/* User Info */}
                 <div className="flex-grow">
                   <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-                    {userData.username}
+                    {userData.name || userData.username}
                   </h1>
                   <p className="text-gray-600 mb-4 flex items-center">
                     <Calendar className="w-4 h-4 mr-2" />

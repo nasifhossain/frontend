@@ -27,6 +27,7 @@ import { authApi } from '@/lib/api/auth'
 const profileSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters").max(20, "Username must be less than 20 characters"),
   email: z.string().email("Please enter a valid email address"),
+  name: z.string().min(1, "Name is required").max(50, "Name must be less than 50 characters"),
   currentPassword: z.string().min(1, "Current password is required to update profile"),
   avatar: z.string().optional(),
   user_type: z.number().min(0).max(1).optional(),
@@ -82,6 +83,7 @@ export function ProfileEditDialog({ children, open: externalOpen, onOpenChange: 
         setAvatarUrl(profileData.avatar || 'No avatar')
         setValue('username', profileData.username)
         setValue('email', profileData.email)
+        setValue('name', profileData.name || '')
         setValue('avatar', profileData.avatar || 'No avatar')
         setValue('user_type', profileData.user_type || 0)
         setValue('currentPassword', '') // Clear current password field
@@ -110,6 +112,7 @@ export function ProfileEditDialog({ children, open: externalOpen, onOpenChange: 
       const updateData = {
         username: data.username,
         email: data.email,
+        name: data.name,
         avatar: avatarUrl, // Use the current avatar URL from state
         password: data.currentPassword, // Backend expects 'password' for current password
         ...(isCurrentUserAdmin ? { user_type: data.user_type || 0 } : {})
@@ -122,7 +125,7 @@ export function ProfileEditDialog({ children, open: externalOpen, onOpenChange: 
         const updatedUserData = {
           id: result.data.id || result.data._id || user.id,
           email: result.data.email,
-          name: result.data.username,
+          name: result.data.name || result.data.username,
           avatar: result.data.avatar
         }
         
@@ -231,6 +234,25 @@ export function ProfileEditDialog({ children, open: externalOpen, onOpenChange: 
                 </div>
                 {errors.username && (
                   <p className="text-sm text-red-600">{errors.username.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-sm font-medium text-gray-700">
+                  Full Name
+                </Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="name"
+                    type="text"
+                    className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 bg-white"
+                    placeholder="Enter your full name"
+                    {...register('name')}
+                  />
+                </div>
+                {errors.name && (
+                  <p className="text-sm text-red-600">{errors.name.message}</p>
                 )}
               </div>
 

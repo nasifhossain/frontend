@@ -175,7 +175,7 @@ export function CommentCard({ comment, postId, depth = 0, onReply, onCommentAdde
             <div className="flex-grow min-w-0">
               <div className="flex items-center space-x-2 mb-1">
                 <h4 className="font-medium text-gray-900 text-sm truncate">
-                  {comment.user.username}
+                  {comment.user.name || comment.user.username}
                 </h4>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                   comment.user.user_type === 1 

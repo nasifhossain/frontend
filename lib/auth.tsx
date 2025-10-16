@@ -16,7 +16,7 @@ interface AuthContextType {
   user: User | null
   setUser: (user: User | null) => void
   login: (identifier: string, password: string) => Promise<{ success: boolean; error?: string; message?: string }>
-  register: (username: string, email: string, password: string) => Promise<{ success: boolean; error?: string; message?: string }>
+  register: (username: string, email: string, name: string, password: string) => Promise<{ success: boolean; error?: string; message?: string }>
   logout: () => void
   isLoading: boolean
 }
@@ -96,13 +96,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const register = async (username: string, email: string, password: string): Promise<{ success: boolean; error?: string; message?: string }> => {
-    console.log('Auth register function called with:', { username, email, password: '***' })
+  const register = async (username: string, email: string, name: string, password: string): Promise<{ success: boolean; error?: string; message?: string }> => {
+    console.log('Auth register function called with:', { username, email, name, password: '***' })
     setIsLoading(true)
     
     try {
       console.log('Calling authApi.register...')
-      const result = await authApi.register({ username, email, password })
+      const result = await authApi.register({ username, email, name, password })
       console.log('Register API result received:', result)
       
       if (result.success) {

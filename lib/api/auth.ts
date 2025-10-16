@@ -9,6 +9,7 @@ export interface RegisterCredentials {
   username: string;
   email: string;
   password: string;
+  name: string;
   avatar?: string;
 }
 
@@ -17,6 +18,7 @@ export interface UpdateProfileCredentials {
   email: string;
   password: string; // Current password (required)
   newPassword?: string; // New password (optional)
+  name: string;
   avatar?: string;
   user_type?: number;
 }
@@ -26,6 +28,7 @@ export interface BackendUser {
   _id?: string;
   username: string;
   email: string;
+  name?: string;
   avatar?: string;
   user_type?: number;
   joined?: string;

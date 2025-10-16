@@ -12,6 +12,7 @@ interface UserData {
   id: string;
   username: string;
   email: string;
+  name?: string;
   avatar: string;
   user_type: number;
   joined: string;
@@ -204,7 +205,7 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
                 {/* User Info */}
                 <div className="flex-grow">
                   <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-                    {userData.username}
+                    {userData.name || userData.username}
                   </h1>
                   <p className="text-gray-600 mb-4 flex items-center">
                     <Calendar className="w-4 h-4 mr-2" />
@@ -258,7 +259,7 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">No Posts Yet</h3>
               <p className="text-gray-600 max-w-md mx-auto">
-                {userData?.username} hasn't created any posts yet.
+                {userData?.name || userData?.username} hasn't created any posts yet.
               </p>
             </CardContent>
           </Card>
