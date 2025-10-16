@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { MessageCircle, User, Reply, ThumbsUp, MoreVertical } from 'lucide-react';
-import { Comment } from '@/lib/api/comments';
+import { MessageCircle, User, Reply, ThumbsUp, ThumbsDown, MoreVertical } from 'lucide-react';
+import { Comment, commentsApi } from '@/lib/api/comments';
+import VotersDialog from './voters-dialog';
 import { CommentForm } from './comment-form';
+import { useToast } from '@/hooks/use-toast';
 
 interface CommentCardProps {
   comment: Comment;
@@ -15,6 +17,11 @@ interface CommentCardProps {
 export function CommentCard({ comment, postId, depth = 0, onReply, onCommentAdded, className }: CommentCardProps) {
   const [showReplies, setShowReplies] = useState(true);
   const [showReplyForm, setShowReplyForm] = useState(false);
+  const [isVoting, setIsVoting] = useState(false);
+  const [userVote, setUserVote] = useState<number | null>(null); // 1 = upvote, -1 = downvote, null = no vote
+  const [votersOpen, setVotersOpen] = useState(false);
+  const [votersType, setVotersType] = useState<number>(1);
+  const { toast } = useToast();
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -48,6 +55,74 @@ export function CommentCard({ comment, postId, depth = 0, onReply, onCommentAdde
       case 0: return 'User';
       case 1: return 'Admin';
       default: return 'User';
+    }
+  };
+
+  const handleVote = async (voteType: 'upvote' | 'downvote') => {
+    if (isVoting) return;
+    
+    setIsVoting(true);
+    try {
+      // Determine the vote value based on current user vote state
+      let voteValue: number;
+      let actionType: string;
+
+      if (voteType === 'upvote') {
+        if (userVote === 1) {
+          // User already upvoted, remove the vote
+          voteValue = 0;
+          actionType = 'removed your upvote from';
+          setUserVote(null);
+        } else {
+          // User either hasn't voted or downvoted, add upvote
+          voteValue = 1;
+          actionType = 'upvoted';
+          setUserVote(1);
+        }
+      } else {
+        if (userVote === -1) {
+          // User already downvoted, remove the vote
+          voteValue = 0;
+          actionType = 'removed your downvote from';
+          setUserVote(null);
+        } else {
+          // User either hasn't voted or upvoted, add downvote
+          voteValue = -1;
+          actionType = 'downvoted';
+          setUserVote(-1);
+        }
+      }
+
+      const result = await commentsApi.voteComment(comment._id, voteValue);
+      
+      if (result.success) {
+        toast({
+          title: "Vote recorded",
+          description: `Successfully ${actionType} the comment`,
+        });
+        
+        // Refresh comments to get updated vote data from backend
+        onCommentAdded?.();
+      } else {
+        // Revert the optimistic update if the vote failed
+        setUserVote(userVote);
+        toast({
+          title: "Vote failed",
+          description: result.message || "Failed to vote on the comment. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error(`Failed to vote on comment:`, error);
+      // Revert the optimistic update
+      setUserVote(userVote);
+      toast({
+        title: "Vote failed",
+        description: `Failed to vote on the comment. Please try again.`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsVoting(false);
     }
   };
 
@@ -125,10 +200,40 @@ export function CommentCard({ comment, postId, depth = 0, onReply, onCommentAdde
 
           {/* Comment Actions */}
           <div className="flex items-center space-x-4 text-xs">
-            <button className="flex items-center space-x-1 text-gray-500 hover:text-blue-600 transition-colors">
-              <ThumbsUp className="w-3 h-3" />
-              <span>{comment.upvotes}</span>
-            </button>
+            {/* Voting Section */}
+            <div className="flex items-center space-x-2">
+              <button 
+                onClick={() => handleVote('upvote')}
+                disabled={isVoting}
+                className={`flex items-center space-x-1 transition-colors disabled:opacity-50 ${
+                  userVote === 1 
+                    ? 'text-green-600 font-semibold' 
+                    : 'text-gray-500 hover:text-green-600'
+                }`}
+              >
+                <ThumbsUp className="w-3 h-3" />
+                <span className="cursor-pointer" onClick={(e) => { e.stopPropagation(); setVotersType(1); setVotersOpen(true); }}>{comment.stats.upvotes}</span>
+              </button>
+              
+              <button 
+                onClick={() => handleVote('downvote')}
+                disabled={isVoting}
+                className={`flex items-center space-x-1 transition-colors disabled:opacity-50 ${
+                  userVote === -1 
+                    ? 'text-red-600 font-semibold' 
+                    : 'text-gray-500 hover:text-red-600'
+                }`}
+              >
+                <ThumbsDown className="w-3 h-3" />
+                <span className="cursor-pointer" onClick={(e) => { e.stopPropagation(); setVotersType(-1); setVotersOpen(true); }}>{comment.stats.downvotes}</span>
+              </button>
+              
+              {comment.stats.totalVotes > 0 && (
+                <span className="text-gray-400 text-xs">
+                  ({comment.stats.upvotePercentage}% upvoted)
+                </span>
+              )}
+            </div>
             
             <button
               onClick={handleReplyClick}
@@ -178,6 +283,7 @@ export function CommentCard({ comment, postId, depth = 0, onReply, onCommentAdde
           </div>
         )}
       </div>
+      <VotersDialog open={votersOpen} onOpenChange={setVotersOpen} commentId={comment._id} type={votersType} />
     </div>
   );
 }

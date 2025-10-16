@@ -184,33 +184,33 @@ export function AvatarUpload({
           <Button
             variant="destructive"
             size="sm"
-            className="absolute -top-2 -right-2 w-6 h-6 rounded-full p-0"
+            className="absolute -top-1 -right-1 w-7 h-7 rounded-full p-0 shadow-lg border-2 border-white bg-red-500 hover:bg-red-600 z-10"
             onClick={handleRemoveAvatar}
           >
-            <X className="w-3 h-3" />
+            <X className="w-4 h-4 text-white" />
           </Button>
         )}
       </div>
 
       {/* Upload button */}
-      <div className="flex flex-col items-center space-y-2">
+      <div className="flex flex-col items-center space-y-1">
         <Button
           variant="outline"
           size="sm"
           onClick={handleFileSelect}
           disabled={disabled || isUploading}
-          className="flex items-center space-x-2"
+          className="flex items-center space-x-2 text-xs"
         >
           {isUploading ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
+            <Loader2 className="w-3 h-3 animate-spin" />
           ) : (
-            <Upload className="w-4 h-4" />
+            <Upload className="w-3 h-3" />
           )}
-          <span>{isUploading ? 'Uploading...' : 'Upload Avatar'}</span>
+          <span>{isUploading ? 'Uploading...' : 'Upload'}</span>
         </Button>
         
-        <p className="text-xs text-gray-500 text-center max-w-32">
-          JPG, PNG, or WebP. Max 5MB.
+        <p className="text-xs text-gray-500 text-center max-w-28">
+          Max 5MB
         </p>
       </div>
 

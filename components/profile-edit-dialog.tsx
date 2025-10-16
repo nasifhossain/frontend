@@ -179,15 +179,14 @@ export function ProfileEditDialog({ children, open: externalOpen, onOpenChange: 
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] bg-white border border-gray-300 shadow-2xl">
-        <DialogHeader className="pb-4 border-b border-gray-200">
-          <DialogTitle className="flex items-center gap-2 text-gray-900">
+      <DialogContent className="sm:max-w-[600px] max-w-[95vw] max-h-[90vh] overflow-y-auto bg-white border border-gray-300 shadow-2xl">
+        <DialogHeader className="pb-3 border-b border-gray-200 sticky top-0 bg-white z-10">
+          <DialogTitle className="flex items-center gap-2 text-gray-900 text-lg">
             <Settings className="h-5 w-5 text-blue-600" />
             Edit Profile
           </DialogTitle>
-          <DialogDescription className="text-gray-600">
+          <DialogDescription className="text-gray-600 text-sm">
             Update your profile information. Leave password empty to keep current password.
-            {currentUserType === 1 ? ' As an admin, you can modify user types.' : ' Only admins can modify user types.'}
           </DialogDescription>
         </DialogHeader>
         
@@ -196,123 +195,132 @@ export function ProfileEditDialog({ children, open: externalOpen, onOpenChange: 
             <div className="text-sm text-gray-500">Loading profile...</div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 pt-4">
-            <div className="space-y-2">
-              <Label htmlFor="username" className="text-sm font-medium text-gray-700">
-                Username
-              </Label>
-              <div className="relative">
-                <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  id="username"
-                  type="text"
-                  className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 bg-white"
-                  placeholder="Enter your username"
-                  {...register('username')}
-                />
-              </div>
-              {errors.username && (
-                <p className="text-sm text-red-600">{errors.username.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                Email
-              </Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  id="email"
-                  type="email"
-                  className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 bg-white"
-                  placeholder="Enter your email"
-                  {...register('email')}
-                />
-              </div>
-              {errors.email && (
-                <p className="text-sm text-red-600">{errors.email.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="currentPassword" className="text-sm font-medium text-gray-700">
-                Current Password (required)
-              </Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  id="currentPassword"
-                  type={showCurrentPassword ? 'text' : 'password'}
-                  className="pl-10 pr-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 bg-white"
-                  placeholder="Enter your current password"
-                  {...register('currentPassword')}
-                />
-                <button
-                  type="button"
-                  className="absolute right-3 top-3 h-4 w-4 text-gray-400 hover:text-gray-600"
-                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                >
-                  {showCurrentPassword ? <EyeOff /> : <Eye />}
-                </button>
-              </div>
-              {errors.currentPassword && (
-                <p className="text-sm text-red-600">{errors.currentPassword.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700">
-                Avatar
-              </Label>
-              <div className="flex justify-center">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-3 pb-4">
+            {/* Avatar Section - Always at top */}
+            <div className="flex justify-center pb-4 border-b border-gray-100">
+              <div className="text-center">
+                <Label className="text-sm font-medium text-gray-700 block mb-3">
+                  Avatar
+                </Label>
                 <AvatarUpload
                   currentAvatar={avatarUrl}
                   onAvatarChange={handleAvatarChange}
                   disabled={isSubmitting}
-                  size="lg"
+                  size="md"
                 />
+                {/* Hidden input to maintain form validation */}
+                <input type="hidden" {...register('avatar')} />
               </div>
-              {/* Hidden input to maintain form validation */}
-              <input type="hidden" {...register('avatar')} />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="user_type" className="text-sm font-medium text-gray-700">
-                User Type
-              </Label>
-              {currentUserType === 1 ? (
-                // Admin can edit user types
-                <select
-                  id="user_type"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
-                  {...register('user_type', { valueAsNumber: true })}
-                >
-                  <option value={0}>User</option>
-                  <option value={1}>Admin</option>
-                </select>
-              ) : (
-                // Regular users can only view their user type
-                <div className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700">
-                  {currentUserType === 0 ? 'User' : 'Admin'}
-                  <input type="hidden" {...register('user_type', { valueAsNumber: true })} />
+            {/* Form Fields - Two columns on larger screens */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="username" className="text-sm font-medium text-gray-700">
+                  Username
+                </Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="username"
+                    type="text"
+                    className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 bg-white"
+                    placeholder="Enter your username"
+                    {...register('username')}
+                  />
                 </div>
-              )}
-              {currentUserType !== 1 && (
-                <p className="text-xs text-gray-500">Only admins can modify user types</p>
-              )}
-              {errors.user_type && (
-                <p className="text-sm text-red-600">{errors.user_type.message}</p>
-              )}
+                {errors.username && (
+                  <p className="text-sm text-red-600">{errors.username.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                  Email
+                </Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="email"
+                    type="email"
+                    className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 bg-white"
+                    placeholder="Enter your email"
+                    {...register('email')}
+                  />
+                </div>
+                {errors.email && (
+                  <p className="text-sm text-red-600">{errors.email.message}</p>
+                )}
+              </div>
             </div>
 
-            <DialogFooter className="pt-6 border-t border-gray-200">
-              <Button type="button" variant="outline" onClick={() => setOpen(false)} className="mr-2">
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting} className="bg-blue-600 hover:bg-blue-700 text-white">
-                {isSubmitting ? 'Updating...' : 'Update Profile'}
-              </Button>
+            {/* Password and User Type - Full width */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="currentPassword" className="text-sm font-medium text-gray-700">
+                  Current Password (required)
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="currentPassword"
+                    type={showCurrentPassword ? 'text' : 'password'}
+                    className="pl-10 pr-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 bg-white"
+                    placeholder="Enter your current password"
+                    {...register('currentPassword')}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-3 h-4 w-4 text-gray-400 hover:text-gray-600"
+                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  >
+                    {showCurrentPassword ? <EyeOff /> : <Eye />}
+                  </button>
+                </div>
+                {errors.currentPassword && (
+                  <p className="text-sm text-red-600">{errors.currentPassword.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="user_type" className="text-sm font-medium text-gray-700">
+                  User Type
+                </Label>
+                {currentUserType === 1 ? (
+                  // Admin can edit user types
+                  <select
+                    id="user_type"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
+                    {...register('user_type', { valueAsNumber: true })}
+                  >
+                    <option value={0}>User</option>
+                    <option value={1}>Admin</option>
+                  </select>
+                ) : (
+                  // Regular users can only view their user type
+                  <div className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700">
+                    {currentUserType === 0 ? 'User' : 'Admin'}
+                    <input type="hidden" {...register('user_type', { valueAsNumber: true })} />
+                  </div>
+                )}
+                {currentUserType !== 1 && (
+                  <p className="text-xs text-gray-500">Only admins can modify user types</p>
+                )}
+                {errors.user_type && (
+                  <p className="text-sm text-red-600">{errors.user_type.message}</p>
+                )}
+              </div>
+            </div>
+
+            <DialogFooter className="pt-4 border-t border-gray-200 sticky bottom-0 bg-white">
+              <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 space-y-2 space-y-reverse sm:space-y-0 w-full">
+                <Button type="button" variant="outline" onClick={() => setOpen(false)} className="w-full sm:w-auto">
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white">
+                  {isSubmitting ? 'Updating...' : 'Update Profile'}
+                </Button>
+              </div>
             </DialogFooter>
           </form>
         )}

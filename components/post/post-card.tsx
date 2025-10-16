@@ -24,6 +24,11 @@ export function PostCard({ post, viewMode = 'grid', className }: PostCardProps) 
     }
     router.push(`/posts/${post._id}`);
   };
+
+  const handleUserClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent post click
+    router.push(`/user/${post.user_id._id}`);
+  };
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -66,12 +71,15 @@ export function PostCard({ post, viewMode = 'grid', className }: PostCardProps) 
     >
       <CardHeader className="pb-3">
         <div className="flex items-start space-x-3">
-          <div className="flex-shrink-0">
+          <div 
+            className="flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={handleUserClick}
+          >
             {getAvatarSrc(post.user_id.avatar) ? (
               <img
                 src={getAvatarSrc(post.user_id.avatar)!}
                 alt={post.user_id.username}
-                className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
+                className="w-10 h-10 rounded-full object-cover border-2 border-gray-200 hover:border-blue-300 transition-colors"
                 onError={(e) => {
                   // Fallback to initials if image fails to load
                   const target = e.target as HTMLImageElement;
@@ -82,7 +90,7 @@ export function PostCard({ post, viewMode = 'grid', className }: PostCardProps) 
               />
             ) : null}
             <div 
-              className={`w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm ${getAvatarSrc(post.user_id.avatar) ? 'hidden' : ''}`}
+              className={`w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm hover:from-blue-600 hover:to-purple-700 transition-colors ${getAvatarSrc(post.user_id.avatar) ? 'hidden' : ''}`}
             >
               {post.user_id.username.charAt(0).toUpperCase()}
             </div>
@@ -90,7 +98,10 @@ export function PostCard({ post, viewMode = 'grid', className }: PostCardProps) 
           
           <div className="flex-grow min-w-0">
             <div className="flex items-center space-x-2 mb-1">
-              <h3 className="font-semibold text-gray-900 truncate">
+              <h3 
+                className="font-semibold text-gray-900 truncate cursor-pointer hover:text-blue-600 transition-colors"
+                onClick={handleUserClick}
+              >
                 {post.user_id.username}
               </h3>
               <span className={`px-2 py-1 text-xs rounded-full font-medium whitespace-nowrap ${

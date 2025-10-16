@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useRouter } from 'next/navigation'
 import { ProfileEditDialog } from '@/components/profile-edit-dialog'
 import { ChangePasswordDialog } from '@/components/change-password-dialog'
 
@@ -22,6 +23,7 @@ interface UserDropdownProps {
 export function UserDropdown({ userName, userAvatar }: UserDropdownProps) {
   const [profileDialogOpen, setProfileDialogOpen] = useState(false)
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false)
+  const router = useRouter()
 
   return (
     <>
@@ -62,6 +64,18 @@ export function UserDropdown({ userName, userAvatar }: UserDropdownProps) {
           >
             <Settings className="mr-2 h-4 w-4" />
             <span>Edit Profile</span>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={() => {
+              router.push('/my-posts')
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M4 3a1 1 0 000 2h12a1 1 0 100-2H4zM3 7a1 1 0 011-1h12a1 1 0 011 1v8a1 1 0 01-1 1H4a1 1 0 01-1-1V7zm3 2v6h2V9H6z" />
+            </svg>
+            <span>My Posts</span>
           </DropdownMenuItem>
           
           <DropdownMenuItem 

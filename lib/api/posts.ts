@@ -77,6 +77,16 @@ export const postsApi = {
     });
     return res;
   }
+,
+
+  // Fetch posts for a specific user (paginated)
+  getUserPosts: async (userId: string, page: number = 1): Promise<{ success: boolean; message: string; data: { posts: Post[]; user?: any; pagination?: any } }> => {
+    const res = await api.get(`/api/posts/user/${userId}?page=${page}`, {
+      requireAuth: true,
+      showErrorToast: true
+    });
+    return res;
+  }
 };
 
 export default postsApi;

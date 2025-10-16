@@ -8,6 +8,16 @@ export interface CommentUser {
   user_type: number;
 }
 
+export interface CommentStats {
+  commentId: string;
+  _id: string | null;
+  totalVotes: number;
+  upvotes: number;
+  downvotes: number;
+  netScore: number;
+  upvotePercentage: number;
+}
+
 export interface Comment {
   _id: string;
   post: string;
@@ -17,6 +27,7 @@ export interface Comment {
   parent_comment: string | null;
   commented_at: string;
   __v: number;
+  stats: CommentStats;
   replies: Comment[];
   replyCount: number;
 }
@@ -80,6 +91,28 @@ export const commentsApi = {
       showErrorToast: false,
       showSuccessToast: true,
       successMessage: "Comment deleted successfully!"
+    });
+    return res;
+  },
+
+  voteComment: async (commentId: string, voteType: number): Promise<{ success: boolean; message: string; data?: any }> => {
+    const res = await api.post(`/api/upvotes/vote`, {
+      commentId,
+      voteType
+    }, {
+      requireAuth: true,
+      showErrorToast: true,
+      showSuccessToast: false
+    });
+    return res;
+  }
+  ,
+
+  getVoters: async (commentId: string, type: number): Promise<{ success: boolean; message: string; data?: { users: CommentUser[] } }> => {
+    const res = await api.get(`/api/upvotes/${commentId}/users?type=${encodeURIComponent(type)}`, {
+      requireAuth: true,
+      showErrorToast: true,
+      showSuccessToast: false
     });
     return res;
   }

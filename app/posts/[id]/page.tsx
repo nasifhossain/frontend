@@ -71,6 +71,12 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
     fetchPost(true);
   };
 
+  const handleUserClick = () => {
+    if (post) {
+      router.push(`/user/${post.user_id._id}`);
+    }
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -221,22 +227,28 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
         }`}>
           <CardHeader className="pb-4">
             <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0">
+              <div 
+                className="flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={handleUserClick}
+              >
                 {getAvatarSrc(post.user_id.avatar) ? (
                   <img
                     src={getAvatarSrc(post.user_id.avatar)!}
                     alt={`${post.user_id.username}'s avatar`}
-                    className="w-12 h-12 rounded-full object-cover"
+                    className="w-12 h-12 rounded-full object-cover border-2 border-gray-200 hover:border-blue-300 transition-colors"
                   />
                 ) : (
-                  <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-                    <User className="w-6 h-6 text-gray-500" />
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center border-2 border-gray-200 hover:border-blue-300 transition-colors">
+                    <User className="w-6 h-6 text-white" />
                   </div>
                 )}
               </div>
               <div className="flex-grow min-w-0">
                 <div className="flex items-center space-x-3 mb-2">
-                  <h3 className="font-semibold text-gray-900 text-lg">
+                  <h3 
+                    className="font-semibold text-gray-900 text-lg cursor-pointer hover:text-blue-600 transition-colors"
+                    onClick={handleUserClick}
+                  >
                     {post.user_id.username}
                   </h3>
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${
