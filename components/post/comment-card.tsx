@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { MessageCircle, User, Reply, ThumbsUp, ThumbsDown, MoreVertical } from 'lucide-react';
+import { MessageCircle, User, Reply, ThumbsUp, ThumbsDown, Trash2 } from 'lucide-react';
 import { Comment, commentsApi } from '@/lib/api/comments';
 import VotersDialog from './voters-dialog';
 import { CommentForm } from './comment-form';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/lib/auth';
 
 interface CommentCardProps {
   comment: Comment;
@@ -18,10 +19,12 @@ export function CommentCard({ comment, postId, depth = 0, onReply, onCommentAdde
   const [showReplies, setShowReplies] = useState(true);
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [isVoting, setIsVoting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [userVote, setUserVote] = useState<number | null>(null); // 1 = upvote, -1 = downvote, null = no vote
   const [votersOpen, setVotersOpen] = useState(false);
   const [votersType, setVotersType] = useState<number>(1);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -139,6 +142,46 @@ export function CommentCard({ comment, postId, depth = 0, onReply, onCommentAdde
     }
   };
 
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this comment? This action cannot be undone.')) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const result = await commentsApi.deleteComment(comment._id);
+      
+      if (result.success) {
+        toast({
+          title: "Comment deleted",
+          description: "The comment has been deleted successfully",
+        });
+        
+        // Refresh comments to update the UI
+        onCommentAdded?.();
+      } else {
+        toast({
+          title: "Delete failed",
+          description: result.message || "Failed to delete the comment. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Failed to delete comment:', error);
+      toast({
+        title: "Delete failed",
+        description: "Failed to delete the comment. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  // Check if current user can delete this comment
+  // User can delete if they are the comment author or an admin
+  const canDelete = user && (user.id === comment.user._id || user.user_type === 1);
+
   const indentLevel = Math.min(depth, 3); // Limit indentation to avoid too much nesting
   
   const getIndentClass = (level: number) => {
@@ -156,7 +199,11 @@ export function CommentCard({ comment, postId, depth = 0, onReply, onCommentAdde
       <div 
         className={`${getIndentClass(indentLevel)} ${depth > 0 ? 'border-l-2 border-gray-100 ml-4' : ''}`}
       >
-        <div className="bg-white rounded-lg p-4 border border-gray-200 hover:border-gray-300 transition-colors">
+        <div className={`rounded-lg p-4 border transition-colors ${
+          comment.is_deleted 
+            ? 'bg-gray-50 border-gray-300 opacity-75' 
+            : 'bg-white border-gray-200 hover:border-gray-300'
+        }`}>
           {/* Comment Header */}
           <div className="flex items-start space-x-3 mb-3">
             <div className="flex-shrink-0">
@@ -164,17 +211,17 @@ export function CommentCard({ comment, postId, depth = 0, onReply, onCommentAdde
                 <img
                   src={getAvatarSrc(comment.user.avatar)!}
                   alt={`${comment.user.username}'s avatar`}
-                  className="w-8 h-8 rounded-full object-cover"
+                  className={`w-8 h-8 rounded-full object-cover ${comment.is_deleted ? 'grayscale opacity-50' : ''}`}
                 />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                <div className={`w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center ${comment.is_deleted ? 'opacity-50' : ''}`}>
                   <User className="w-4 h-4 text-gray-500" />
                 </div>
               )}
             </div>
             <div className="flex-grow min-w-0">
               <div className="flex items-center space-x-2 mb-1">
-                <h4 className="font-medium text-gray-900 text-sm truncate">
+                <h4 className={`font-medium text-sm truncate ${comment.is_deleted ? 'text-gray-500' : 'text-gray-900'}`}>
                   {comment.user.name || comment.user.username}
                 </h4>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -187,62 +234,73 @@ export function CommentCard({ comment, postId, depth = 0, onReply, onCommentAdde
                 <span className="text-xs text-gray-500">
                   {formatDate(comment.commented_at)}
                 </span>
+                {comment.is_deleted && (
+                  <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-50 text-red-600 border border-red-200">
+                    Deleted
+                  </span>
+                )}
               </div>
             </div>
           </div>
 
           {/* Comment Content */}
           <div className="mb-3">
-            <p className="text-gray-700 text-sm leading-relaxed">
+            <p className={`text-sm leading-relaxed ${comment.is_deleted ? 'text-gray-500 italic' : 'text-gray-700'}`}>
               {comment.content}
             </p>
           </div>
 
           {/* Comment Actions */}
           <div className="flex items-center space-x-4 text-xs">
-            {/* Voting Section */}
-            <div className="flex items-center space-x-2">
-              <button 
-                onClick={() => handleVote('upvote')}
-                disabled={isVoting}
-                className={`flex items-center space-x-1 transition-colors disabled:opacity-50 ${
-                  userVote === 1 
-                    ? 'text-green-600 font-semibold' 
-                    : 'text-gray-500 hover:text-green-600'
-                }`}
-              >
-                <ThumbsUp className="w-3 h-3" />
-                <span className="cursor-pointer" onClick={(e) => { e.stopPropagation(); setVotersType(1); setVotersOpen(true); }}>{comment.stats.upvotes}</span>
-              </button>
-              
-              <button 
-                onClick={() => handleVote('downvote')}
-                disabled={isVoting}
-                className={`flex items-center space-x-1 transition-colors disabled:opacity-50 ${
-                  userVote === -1 
-                    ? 'text-red-600 font-semibold' 
-                    : 'text-gray-500 hover:text-red-600'
-                }`}
-              >
-                <ThumbsDown className="w-3 h-3" />
-                <span className="cursor-pointer" onClick={(e) => { e.stopPropagation(); setVotersType(-1); setVotersOpen(true); }}>{comment.stats.downvotes}</span>
-              </button>
-              
-              {comment.stats.totalVotes > 0 && (
-                <span className="text-gray-400 text-xs">
-                  ({comment.stats.upvotePercentage}% upvoted)
-                </span>
-              )}
-            </div>
+            {/* Voting Section - Hide for deleted comments */}
+            {!comment.is_deleted && (
+              <div className="flex items-center space-x-2">
+                <button 
+                  onClick={() => handleVote('upvote')}
+                  disabled={isVoting}
+                  className={`flex items-center space-x-1 transition-colors disabled:opacity-50 ${
+                    userVote === 1 
+                      ? 'text-green-600 font-semibold' 
+                      : 'text-gray-500 hover:text-green-600'
+                  }`}
+                >
+                  <ThumbsUp className="w-3 h-3" />
+                  <span className="cursor-pointer" onClick={(e) => { e.stopPropagation(); setVotersType(1); setVotersOpen(true); }}>{comment.stats.upvotes}</span>
+                </button>
+                
+                <button 
+                  onClick={() => handleVote('downvote')}
+                  disabled={isVoting}
+                  className={`flex items-center space-x-1 transition-colors disabled:opacity-50 ${
+                    userVote === -1 
+                      ? 'text-red-600 font-semibold' 
+                      : 'text-gray-500 hover:text-red-600'
+                  }`}
+                >
+                  <ThumbsDown className="w-3 h-3" />
+                  <span className="cursor-pointer" onClick={(e) => { e.stopPropagation(); setVotersType(-1); setVotersOpen(true); }}>{comment.stats.downvotes}</span>
+                </button>
+                
+                {comment.stats.totalVotes > 0 && (
+                  <span className="text-gray-400 text-xs">
+                    ({comment.stats.upvotePercentage}% upvoted)
+                  </span>
+                )}
+              </div>
+            )}
             
-            <button
-              onClick={handleReplyClick}
-              className="flex items-center space-x-1 text-gray-500 hover:text-blue-600 transition-colors"
-            >
-              <Reply className="w-3 h-3" />
-              <span>Reply</span>
-            </button>
+            {/* Reply button - Always visible */}
+            {!comment.is_deleted && (
+              <button
+                onClick={handleReplyClick}
+                className="flex items-center space-x-1 text-gray-500 hover:text-blue-600 transition-colors"
+              >
+                <Reply className="w-3 h-3" />
+                <span>Reply</span>
+              </button>
+            )}
 
+            {/* Show replies button - Always visible if there are replies */}
             {comment.replyCount > 0 && (
               <button 
                 onClick={() => setShowReplies(!showReplies)}
@@ -250,6 +308,19 @@ export function CommentCard({ comment, postId, depth = 0, onReply, onCommentAdde
               >
                 <MessageCircle className="w-3 h-3" />
                 <span>{showReplies ? 'Hide' : 'Show'} {comment.replyCount} {comment.replyCount === 1 ? 'reply' : 'replies'}</span>
+              </button>
+            )}
+
+            {/* Delete button - Hide for already deleted comments */}
+            {canDelete && !comment.is_deleted && (
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="flex items-center space-x-1 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50"
+                title="Delete comment"
+              >
+                <Trash2 className="w-3 h-3" />
+                <span>{isDeleting ? 'Deleting...' : 'Delete'}</span>
               </button>
             )}
           </div>

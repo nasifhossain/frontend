@@ -27,6 +27,7 @@ export interface Comment {
   user: CommentUser;
   parent_comment: string | null;
   commented_at: string;
+  is_deleted?: boolean;
   __v: number;
   stats: CommentStats;
   replies: Comment[];

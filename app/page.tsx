@@ -1,7 +1,7 @@
 "use client"
 
 import React from 'react'
-import { LogOut, User, Home, Lock } from 'lucide-react'
+import { LogOut, User, Home, Lock, Users } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 import { Button } from '@/components/ui/button'
@@ -40,9 +40,24 @@ export default function HomePage() {
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
-              <Home className="h-6 w-6 text-blue-600" />
-              <h1 className="text-xl font-semibold text-gray-900">Posts</h1>
+            <div className="flex items-center space-x-6">
+              <div className="flex items-center space-x-2">
+                <Home className="h-6 w-6 text-blue-600" />
+                <h1 className="text-xl font-semibold text-gray-900">Posts</h1>
+              </div>
+              
+              {/* Admin Users Link */}
+              {user.user_type === 1 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => router.push('/users')}
+                  className="flex items-center space-x-2 text-gray-700 hover:text-blue-600"
+                >
+                  <Users className="h-4 w-4" />
+                  <span>Users</span>
+                </Button>
+              )}
             </div>
             
             <div className="flex items-center space-x-4">

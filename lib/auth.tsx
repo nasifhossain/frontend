@@ -10,6 +10,7 @@ interface User {
   email: string
   name: string
   avatar?: string
+  user_type?: number
 }
 
 interface AuthContextType {
@@ -59,7 +60,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           id: result.data.user.id || result.data.user._id || '',
           email: result.data.user.email,
           name: result.data.user.username,
-          avatar: result.data.user.avatar
+          avatar: result.data.user.avatar,
+          user_type: result.data.user.user_type
         }
         
         setUser(userData)
